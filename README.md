@@ -51,18 +51,43 @@
 添加相关变量，变量名稍后下文会提到。根据你的需求按需添加即可。
 ![sc (12).jpeg](https://data.novaecho.org/file/1792065413039_sc__12_.jpeg)
 
-| 变量 | 默认 | 说明 | 
-| --- | --- | --- |
-| `INDEX_PATH` | `user` | 目录页路径 |
-| `ADMIN_PATH` | `admin` | 管理页路径 |
-| `INDEX_USERNAME` | `user` | 目录页用户名 |
-| `ADMIN_USERNAME` | `admin` | 管理页用户名 -**可选** |
-| `MAX_LOGIN_ATTEMPTS` | `5` | 同 IP 连续失败多少次锁定 -**可选** |
-| `LOCKOUT_SECONDS` | `300` | 锁定时长 -**可选** |
-| `PUBLIC_DOMAIN` | 空 | 公网域名，填了就用它替代上报的 IP 生成链接 -**可选** |
-| `TIMEZONE` | `Asia/Shanghai` | 页面时间显示时区 -**可选** |
-| `REPORT_RATE_LIMIT` | `30` | 每 IP 每 10 秒最多上报几次 -**可选** |
+必填
 
+| 变量 | 默认 | 说明 |
+| --- | --- | --- |
+| `ADMIN_PASSWORD` | — | 管理页密码。**留空或未设 = 管理禁用(403)**&#8203;，无法创建任何服务 |
+
+建议填
+
+| 变量 | 默认 | 说明 |
+| --- | --- | --- |
+| `ADMIN_USERNAME` | `admin` | 管理页用户名，与 `ADMIN_PASSWORD` 配套使用 |
+| `INDEX_PASSWORD` | 空 | 目录页密码。**留空 = 目录页免密**，任何拿到链接的人都能看到所有内网服务名和地址 |
+| `SESSION_SECRET` | — | 会话签名密钥。不设则由四个密码派生，建议用 `openssl rand -hex 32` 生成 |
+| `INDEX_PATH` | `user` | 目录页路径。**建议改成随机串**，默认值容易被扫描器猜到 |
+| `ADMIN_PATH` | `admin` | 管理页路径。**同上**。与 `INDEX_PATH` 不能相同，否则返回 500 |
+
+可选
+
+| 变量 | 默认 | 说明 |
+| --- | --- | --- |
+| `INDEX_USERNAME` | `user` | 目录页用户名 |
+| `MAX_LOGIN_ATTEMPTS` | `5` | 同 IP 连续失败多少次锁定，有效范围 1–100，超出被静默钳制 |
+| `LOCKOUT_SECONDS` | `300` | 锁定时长（秒），有效范围 10–86400，超出被静默钳制 |
+| `PUBLIC_DOMAIN` | 空 | 公网域名，填了就用它替代上报的 IP 生成链接。支持带 `https://` 前缀和结尾斜杠；非法值会被忽略并回退为上报 IP |
+| `TIMEZONE` | `Asia/Shanghai` | 页面时间显示时区。非法值静默回退默认，不报错 |
+| `REPORT_RATE_LIMIT` | `30` | 每 IP 每 10 秒最多上报次数，有效范围 0–10000。`0` 表示关闭限流 |
+
+密码类变量请用 secret 类型设置，而不是普通的变量。
+
+注意事项
+
+- 取值超出有效范围**不会报错**，会被静默钳制到边界值。填错时行为与预期不符但不提示。
+- `INDEX_PATH` 与 `ADMIN_PATH` 设置为相同值时，服务启动即返回 500。
+- `ADMIN_PASSWORD` 未设时管理页返回 403，属于功能禁用而非降级到弱保护。
+- `INDEX_PASSWORD` 未设时目录页完全公开，页面上会列出所有服务名与地址。
+
+### 继续
 
 来到“域”这一选项卡，自己绑定一个域名。workers.dev 域名在国内被墙了，建议绑定一个自己的域名。关于如何获取域名以及托管到 Cloudflare 上面，请自行上网搜索。
 ![sc (11).jpeg](https://data.novaecho.org/file/1792065938283_sc__11_.jpeg)
