@@ -7,13 +7,7 @@
         "description": "KV 命名空间，存储服务列表与上报数据。**部署时自动创建并绑定**，无需手动准备。"
       },
       "ADMIN_PASSWORD": {
-        "description": "**必填**。管理页密码，建议用 `openssl rand -hex 16` 生成。留空或未设 = 管理功能禁用（管理页返回 403），无法创建任何服务。"
-      },
-      "INDEX_PASSWORD": {
-        "description": "目录页密码。**留空 = 目录页免密**，任何拿到链接的人都能看到所有内网服务名和地址。"
-      },
-      "SESSION_SECRET": {
-        "description": "会话签名密钥。建议用 `openssl rand -hex 32` 生成；留空则由密码自动派生。"
+        "description": "**必填**。管理页密码。留空或未设 = 管理功能禁用（管理页返回 403），无法创建任何服务。"
       },
       "INDEX_PATH": {
         "description": "目录页路径，默认 `user`。**建议改成随机串**，默认值容易被扫描器猜到。"
@@ -32,9 +26,6 @@
       },
       "LOCKOUT_SECONDS": {
         "description": "登录锁定时长（秒），默认 `300`，有效范围 10-86400，超出被静默钳制。"
-      },
-      "PUBLIC_DOMAIN": {
-        "description": "可选。公网域名，填了就用它替代上报的 IP 生成链接。非法值会被忽略并回退为上报 IP。"
       },
       "TIMEZONE": {
         "description": "页面时间显示时区，默认 `Asia/Shanghai`。非法值静默回退默认，不报错。"

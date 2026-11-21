@@ -16,7 +16,6 @@
     "ADMIN_USERNAME": "admin",
     "MAX_LOGIN_ATTEMPTS": "5",
     "LOCKOUT_SECONDS": "300",
-    "PUBLIC_DOMAIN": "",
     "TIMEZONE": "Asia/Shanghai",
     "REPORT_RATE_LIMIT": "30"
   },
