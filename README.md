@@ -13,6 +13,11 @@
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NovaEchoLiu/natmap-portal)
 
+**部署前需要准备：**
+
+- 一个 Cloudflare 账号
+- 一个 GitHub（或 GitLab）账号。点击部署按钮时 Cloudflare 会先要求连接 Git 账号，并把本仓库**克隆一份到部署者自己的账号下**（类似 fork），之后在该副本上构建部署。部署者后续修改代码也走自己的副本仓库，与本仓库无关。
+
 点击按钮 → 登录 GitHub 与 Cloudflare → 在配置页按提示填写，KV 命名空间会自动创建并绑定，全程不需要本地环境。
 
 配置页逐项说明（部署页所有项均为必填，可选变量请部署后再添加）：
