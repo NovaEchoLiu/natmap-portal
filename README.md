@@ -7,6 +7,12 @@
 里面有一个通知脚本的功能，借助这个功能，**当IP和端口变化时，上报到 Workers 登记成一个页面。**
 打开页面显示服务名、地址、协议和打开按钮，不用自己手动记忆IP和端口。
 
+## 应用截图
+
+![image.png](https://data.novaecho.org/file/1795250749467_image.png)
+![image.png](https://data.novaecho.org/file/1795250829045_image.png)
+![手机三拼jpg格式](https://data.novaecho.org/file/1795251221460_97c08620b3064729f816b08378e9d627.jpg)
+
 ## 怎么用
 
 **给出两种部署方法，可根据自己情况使用。**
