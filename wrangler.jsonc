@@ -1,0 +1,28 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "natmap-portal",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-21",
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "PLACEHOLDER_KV_NAMESPACE_ID"
+    }
+  ],
+  "vars": {
+    "INDEX_PATH": "user",
+    "ADMIN_PATH": "admin",
+    "INDEX_USERNAME": "user",
+    "ADMIN_USERNAME": "admin",
+    "MAX_LOGIN_ATTEMPTS": "5",
+    "LOCKOUT_SECONDS": "300",
+    "PUBLIC_DOMAIN": "",
+    "TIMEZONE": "Asia/Shanghai",
+    "REPORT_RATE_LIMIT": "30"
+  },
+  "observability": {
+    "enabled": true
+  }
+  // 密码类 secret（ADMIN_PASSWORD / INDEX_PASSWORD / SESSION_SECRET）
+  // 定义在 .dev.vars.example，部署时 Cloudflare 面板会逐项提示填写
+}

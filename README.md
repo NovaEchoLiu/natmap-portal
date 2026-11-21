@@ -7,6 +7,26 @@
 
 ## 怎么用
 
+给出两种部署方法，根据自己情况使用。
+
+### 一键部署（推荐）
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NovaEchoLiu/natmap-portal)
+
+点击按钮 → 登录 GitHub 与 Cloudflare → 在配置页按提示填写，KV 命名空间会自动创建并绑定，全程不需要本地环境。
+
+配置页逐项说明（与手动部署的变量一致）：
+
+| 项 | 必填 | 说明 |
+| --- | --- | --- |
+| `ADMIN_PASSWORD` | **是** | 管理页密码，建议 `openssl rand -hex 16` 生成。**留空 = 管理禁用（403）** |
+| `SESSION_SECRET` | 建议 | 会话签名密钥，`openssl rand -hex 32` 生成 |
+| `INDEX_PASSWORD` | 建议 | 目录页密码，**留空 = 目录页完全公开** |
+| `INDEX_PATH` / `ADMIN_PATH` | 建议 | 改成随机串，默认值容易被扫描器猜到 |
+| 其余变量 | 否 | 保持默认即可，详见下文变量表 |
+
+部署完成后建议绑定自己的域名（workers.dev 在国内被墙）：进入 Worker → 设置 → 域和路由 → 添加自定义域，后续步骤与手动部署相同。详细说明可以见下。
+
 ### 手动部署
 
 在 GitHub 上下载好 worker.js 源码。
@@ -101,11 +121,14 @@
 ![sc (9).jpeg](https://data.novaecho.org/file/1792065414402_sc__9_.jpeg)
 
 如果你配置了 IndexPath 变量的话，直接访问域名应该返回 404 页面。
+![sc (9).jpeg](https://data.novaecho.org/file/1792065406932_sc__8_.jpeg)
 
 在路径后面添加上你当时配置的INDEX_PATH变量，然后访问，应该会跳出用户认证页面
 ![屏幕截图 2026-10-15 193435.png](https://data.novaecho.org/file/1792066304184_屏幕截图_2026-10-15_193435.png)
 
-输入你当时配置的那些变量名，然后应该进入了一个首页，点击下面的管理页
+输入你当时配置的那些变量名，然后应该进入了一个首页
+
+要进入管理页面，请输入你当时配置的ADMIN_PATH
 
 然后再输一遍你配置的管理员密码
 

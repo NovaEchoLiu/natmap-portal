@@ -670,7 +670,8 @@ async function routeCreate(request, env, cfg, ctx) {
         400
       );
     }
-    if (scheme !== "http" && scheme !== "https") scheme = "http";
+    if (scheme !== "http" && scheme !== "https" && scheme !== "tcp" && scheme !== "udp")
+      scheme = "http";
 
     if ((await getService(env, name)) != null) {
       return htmlResponse(
@@ -716,7 +717,8 @@ async function routeUpdateScheme(request, env, cfg, name) {
     throw e;
   }
   let scheme = String(form.get("scheme") || "http").trim();
-  if (scheme !== "http" && scheme !== "https") scheme = "http";
+  if (scheme !== "http" && scheme !== "https" && scheme !== "tcp" && scheme !== "udp")
+    scheme = "http";
 
   const svc = await getService(env, name);
   if (svc == null) {
@@ -808,9 +810,10 @@ function isValidHost(s) {
 }
 
 function buildLink(svc, cfg) {
+  const scheme = svc.scheme === "https" ? "https" : svc.scheme === "http" ? "http" : null;
+  if (!scheme) return null;
   const ip = svc.ip;
   if (!ip) return null;
-  const scheme = svc.scheme === "https" ? "https" : "http";
   const host = cfg.publicDomain || ip;
   const bracketed = host.includes(":") && !host.startsWith("[") ? `[${host}]` : host;
   const port = svc.port;
@@ -931,6 +934,9 @@ button.ghost:hover{background:#f8fafc;color:var(--text)}
 form.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ops{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ops select{width:auto;min-width:88px}
+.ops button{padding:8px 12px}
+body.admin .wrap{max-width:1180px}
+td.cell-time{white-space:nowrap}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
 .card h2{font-size:15px;margin:0 0 14px}
@@ -1043,7 +1049,10 @@ async function renderIndex(env, cfg, nonce) {
   for (const name of names) {
     const svc = services[name];
     const port = svc.port;
-    const protocol = svc.protocol || "-";
+    const scheme = svc.scheme === "https" ? "https" : svc.scheme === "http" ? "http" : null;
+    const protocol = scheme
+      ? scheme.toUpperCase()
+      : String(svc.protocol || "tcp").toUpperCase();
     const updated = svc.updated_at;
     const link = buildLink(svc, cfg);
 
@@ -1055,7 +1064,7 @@ async function renderIndex(env, cfg, nonce) {
 
     const linkCell = link
       ? `<a class="open-btn" href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">打开 →</a>`
-      : `<span class="muted">—</span>`;
+      : `<span class="muted">仅展示</span>`;
 
     const timeCell = updated
       ? escapeHtml(formatTime(updated, cfg.timeZone))
@@ -1096,7 +1105,6 @@ async function renderIndex(env, cfg, nonce) {
     </thead>
     <tbody>${rowsHtml}</tbody>
   </table>
-  <p class="foot"><a href="/${escapeAttr(cfg.adminPath)}">管理页 →</a></p>
 </div>`,
   });
 }
@@ -1128,7 +1136,7 @@ async function renderAdmin(env, cfg, nonce, opts = {}) {
 
   for (const name of names) {
     const svc = services[name];
-    const scheme = svc.scheme === "https" ? "https" : "http";
+    const scheme = ["http", "https", "tcp", "udp"].includes(svc.scheme) ? svc.scheme : "http";
     const updated = svc.updated_at;
     const link = buildLink(svc, cfg);
 
@@ -1152,7 +1160,7 @@ async function renderAdmin(env, cfg, nonce, opts = {}) {
               <td class="cell-title" data-label="服务">${escapeHtml(name)}</td>
               <td data-label="地址">${addrCell}</td>
               <td data-label="协议"><span class="muted">${escapeHtml(String(svc.protocol || "-"))}</span></td>
-              <td data-label="最近更新">${timeCell}</td>
+              <td class="cell-time" data-label="最近更新">${timeCell}</td>
               <td data-label="链接">${linkCell}</td>
               <td class="cell-ops">
                 <div class="ops">
@@ -1161,6 +1169,8 @@ async function renderAdmin(env, cfg, nonce, opts = {}) {
                     <select name="scheme" aria-label="协议">
                       <option value="http"${scheme === "http" ? " selected" : ""}>http</option>
                       <option value="https"${scheme === "https" ? " selected" : ""}>https</option>
+                      <option value="tcp"${scheme === "tcp" ? " selected" : ""}>tcp（仅展示）</option>
+                      <option value="udp"${scheme === "udp" ? " selected" : ""}>udp（仅展示）</option>
                     </select>
                     <button type="submit">保存</button>
                   </form>
@@ -1188,6 +1198,7 @@ async function renderAdmin(env, cfg, nonce, opts = {}) {
   return pageShell({
     title: "服务管理",
     nonce,
+    bodyClass: "admin",
     body: `<div class="wrap">
   <h1>服务管理</h1>
   ${banner}
@@ -1200,10 +1211,12 @@ async function renderAdmin(env, cfg, nonce, opts = {}) {
       <select name="scheme" aria-label="协议">
         <option value="http">http</option>
         <option value="https">https</option>
+        <option value="tcp">tcp（仅展示）</option>
+        <option value="udp">udp（仅展示）</option>
       </select>
       <button type="submit">创建并生成密钥</button>
     </form>
-    <p class="hint">支持中英文、数字、空格、下划线、连字符与点，最长 64 字符。创建后会生成一次性 token。</p>
+    <p class="hint">支持中英文、数字、空格、下划线、连字符与点，最长 64 字符。创建后会生成一次性 token。http/https 服务在目录页显示"打开"按钮；tcp/udp 服务仅展示地址，不提供打开按钮。</p>
   </div>
   <div class="card">
     <h2>服务列表</h2>

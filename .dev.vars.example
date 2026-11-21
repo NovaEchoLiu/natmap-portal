@@ -1,0 +1,13 @@
+# 复制本文件为 .dev.vars 后可在本地 wrangler dev 使用；
+# 通过 Deploy to Cloudflare 按钮部署时，以下各项会在配置页逐项提示填写。
+
+# 管理页密码：必填！建议 openssl rand -hex 16 生成。
+# 留空或未设 = 管理功能禁用（管理页返回 403），无法创建任何服务。
+ADMIN_PASSWORD=
+
+# 目录页密码：留空 = 目录页免密，任何拿到链接的人都能看到所有内网服务名和地址。
+INDEX_PASSWORD=
+
+# 会话签名密钥：建议 openssl rand -hex 32 生成。
+# 留空则由上面几个密码自动派生（改密码会使所有已登录会话失效）。
+SESSION_SECRET=
