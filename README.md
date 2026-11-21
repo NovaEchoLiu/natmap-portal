@@ -2,43 +2,75 @@
 
 ## 干什么
 
-这个脚本搭配openwrt里面的Natmap使用。作用是把内网服务的最新映射地址登记到一个页面，打开就能直接点进去。
-里面有一个通知脚本的功能，当IP和端口变化时通知对方，并上报到 Workers 登记成一个页面。打开页面显示服务名、地址、协议和打开按钮，不用自己手动记忆IP和端口。
+这个脚本搭配openwrt里面的Natmap使用。原项目地址：https://github.com/heiher/natmap
+这个程序的作用是把映射出的服务的最新地址登记到一个页面，打开就能直接点进去，
+里面有一个通知脚本的功能，借助这个功能，**当IP和端口变化时，上报到 Workers 登记成一个页面。**
+打开页面显示服务名、地址、协议和打开按钮，不用自己手动记忆IP和端口。
 
 ## 怎么用
 
-给出两种部署方法，根据自己情况使用。
+**给出两种部署方法，可根据自己情况使用。**
 
 ### 一键部署（推荐）
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/NovaEchoLiu/natmap-portal)
 
-**部署前需要准备：**
+**部署前准备：**
 
-- 一个 Cloudflare 账号
-- 一个 GitHub（或 GitLab）账号。点击部署按钮时 Cloudflare 会先要求连接 Git 账号，并把本仓库**克隆一份到部署者自己的账号下**（类似 fork），之后在该副本上构建部署。部署者后续修改代码也走自己的副本仓库，与本仓库无关。
+- 一个Cloudflare账号
+- 一个GitHub账号。
 
-点击按钮 → 登录 GitHub 与 Cloudflare → 在配置页按提示填写，KV 命名空间会自动创建并绑定，全程不需要本地环境。
+点击上面的 Deploy to Cloudflare 按钮。然后进入这个页面。
 
-配置页逐项说明（部署页所有项均为必填，可选变量请部署后再添加）：
+![image.png](https://data.novaecho.org/file/1795249113045_image.png)
+
+点击 新建GitHub连接。
+
+然后登录上你自己的GitHub账号。
+
+登录完之后，**重新回到这个项目地址下**。再次点击上面的Deploy to Cloudflare。
+
+此时找到上面的Git账户。选择自己刚才登录的账户。
+
+![image.png](https://data.novaecho.org/file/1795249335512_image.png)
+
+完了往下滑，然后填写几个基本配置。部署页所有项均为必填，可选变量请部署后再添加：
 
 | 项 | 必填 | 说明 |
 | --- | --- | --- |
 | `ADMIN_PASSWORD` | **是** | 管理页密码。**留空 = 管理禁用（403）** |
 | `INDEX_PATH` / `ADMIN_PATH` | 建议 | 部署页预填了默认值，可直接改成随机串 |
-| 其余变量 | 否 | 保持默认即可，详见下文变量表 |
+| 其余变量 | 按情况 | 保持默认即可，详见下文变量表 |
 
-**部署后建议手动添加的可选项**（Worker → 设置 → 变量和机密）：
+![image.png](https://data.novaecho.org/file/1795249658227_image.png)
 
-- `SESSION_SECRET`：会话签名密钥，`openssl rand -hex 32` 生成（不设则由密码自动派生）
+确认一些信息，然后**点右下角的部署**。
+
+点完之后，等会，应该很快就完成了啊，
+
+![image.png](https://data.novaecho.org/file/1795249886268_image.png)
+
+看见有这么个小星星，然后显示 success! build completed 就完成了
+
+然后点击上面的 域 ，绑定一下自己的域名。
+
+![image.png](https://data.novaecho.org/file/1795250453039_image.png)
+
+**部署完了之后，然后建议添加一些可选项的变量。**
+
+回到设置那里，点那个变量和机密。然后参考下面的，自己按需求选择。
+
+![image.png](https://data.novaecho.org/file/1795250103697_image.png)
+
+- `SESSION_SECRET`：会话签名密钥，自己可以用`openssl rand -hex 32` 生成。不设则由密码自动派生，
 - `INDEX_PASSWORD`：目录页密码，**不设 = 目录页完全公开**
-- `PUBLIC_DOMAIN`：公网域名，填了就用它替代上报 IP 生成链接
+- `PUBLIC_DOMAIN`：公网域名，填了就用它替代上报IP然后生成链接。
 
-部署完成后建议绑定自己的域名（workers.dev 在国内被墙）：进入 Worker → 设置 → 域和路由 → 添加自定义域，后续步骤与手动部署相同。详细说明可以见下。
+---
 
 ### 手动部署
 
-在 GitHub 上下载好 worker.js 源码。
+在 GitHub 上下载好 **worker.js** 源码。
 
 下载好之后打开Cloudflare.
 
@@ -60,7 +92,7 @@
 将刚才下载下来的worker.js源码粘贴上去
 ![sc (18).jpeg](https://data.novaecho.org/file/1792065418438_sc__18_.jpeg)
 
-创建好之后，来到存储和数据库，点击KV命名空间
+创建好之后，来到**存储和数据库**，点击**KV命名空间**
 ![sc (17).jpeg](https://data.novaecho.org/file/1792065412276_sc__17_.jpeg)
 
 创建KV空间
@@ -69,7 +101,7 @@
 自己起个名字
 ![sc (15).jpeg](https://data.novaecho.org/file/1792065412088_sc__15_.jpeg)
 
-完成后重新回到 Workers and Pages，找到刚才创建的项目，点击设置，找到绑定
+完成后重新回到 Workers and Pages，找到刚才创建的项目，点击设置，找到**绑定**
 ![sc (14).jpeg](https://data.novaecho.org/file/1792065411323_sc__14_.jpeg)
 
 绑定KV空间
@@ -129,10 +161,10 @@
 创建好之后，点击右上角的访问，尝试直接访问
 ![sc (9).jpeg](https://data.novaecho.org/file/1792065414402_sc__9_.jpeg)
 
-如果你配置了 IndexPath 变量的话，直接访问域名应该返回 404 页面。
+**如果你配置了 IndexPath 变量的话，直接访问域名应该返回 404 页面。**
 ![sc (9).jpeg](https://data.novaecho.org/file/1792065406932_sc__8_.jpeg)
 
-在路径后面添加上你当时配置的INDEX_PATH变量，然后访问，应该会跳出用户认证页面
+在路径后面添加上你当时配置的INDEX_PATH变量，然后访问，应该会跳出**用户认证页面**
 ![屏幕截图 2026-10-15 193435.png](https://data.novaecho.org/file/1792066304184_屏幕截图_2026-10-15_193435.png)
 
 输入你当时配置的那些变量名，然后应该进入了一个首页
@@ -149,7 +181,7 @@
 密钥创建出来之后，只显示这一次，尽快保存
 ![sc (6).jpeg](https://data.novaecho.org/file/1792065409473_sc__6_.jpeg)
 
-通过.sh脚本调用
+#### 通过.sh脚本调用
 
 登录到OpenWRT的SSH，新建一个.sh脚本，路径自己选，名字也自己选，能记住就行
 
