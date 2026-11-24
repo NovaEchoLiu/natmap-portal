@@ -821,6 +821,15 @@ function buildLink(svc, cfg) {
   return `${scheme}://${bracketed}:${port}`;
 }
 
+function formatCopyAddr(svc) {
+  const ip = svc.ip;
+  if (!ip) return "";
+  const bracketed = ip.includes(":") && !ip.startsWith("[") ? `[${ip}]` : ip;
+  const port = svc.port;
+  if (port == null || port === 0) return bracketed;
+  return `${bracketed}:${port}`;
+}
+
 function escapeHtml(s) {
   return String(s)
     .replace(/&/g, "&amp;")
@@ -915,6 +924,15 @@ td a:hover{text-decoration:underline}
   min-height:44px;
 }
 .open-btn:hover{background:#2559c4}
+.btn-group{display:inline-flex;gap:8px;align-items:center}
+.copy-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:#1f9d55;color:#fff;border:none;text-decoration:none;
+  padding:9px 16px;border-radius:9px;font-size:14px;font-weight:500;
+  cursor:pointer;font-family:inherit;min-height:44px;
+}
+.copy-btn:hover{background:#188a48}
+.copy-btn.copied{background:#0f7a3d}
 
 input[type=text],select{
   width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;
@@ -995,6 +1013,9 @@ td.cell-time{white-space:nowrap}
   td.cell-action{display:block;text-align:left;padding-top:10px;margin-top:2px}
   td.cell-action::before{display:none}
   td.cell-action .open-btn{width:100%}
+  td.cell-action .btn-group{display:flex;gap:8px;width:100%}
+  td.cell-action .btn-group > *{flex:1 1 0;min-width:0}
+  td.cell-action .copy-btn{width:100%}
   td.cell-ops{display:block;text-align:left;padding-top:12px}
   td.cell-ops::before{display:none}
   td.cell-ops .ops{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -1055,6 +1076,7 @@ async function renderIndex(env, cfg, nonce) {
       : String(svc.protocol || "tcp").toUpperCase();
     const updated = svc.updated_at;
     const link = buildLink(svc, cfg);
+    const copyText = formatCopyAddr(svc);
 
     const addrCell = svc.ip
       ? `<span class="mono">${escapeHtml(svc.ip)}${
@@ -1062,9 +1084,14 @@ async function renderIndex(env, cfg, nonce) {
         }</span>`
       : `<span class="muted">等待首次上报</span>`;
 
+    const copyBtn = copyText
+      ? `<button type="button" class="copy-btn" data-copy="${escapeAttr(copyText)}">复制</button>`
+      : "";
     const linkCell = link
-      ? `<a class="open-btn" href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">打开 →</a>`
-      : `<span class="muted">仅展示</span>`;
+      ? `<span class="btn-group">${copyBtn}<a class="open-btn" href="${escapeAttr(link)}" target="_blank" rel="noopener noreferrer">打开 →</a></span>`
+      : copyBtn
+        ? copyBtn
+        : `<span class="muted">仅展示</span>`;
 
     const timeCell = updated
       ? escapeHtml(formatTime(updated, cfg.timeZone))
@@ -1088,6 +1115,48 @@ async function renderIndex(env, cfg, nonce) {
     ? `<span class="count-pill">共 <b>${names.length}</b> 个服务</span>`
     : "";
 
+  const script = `<script nonce="${escapeAttr(
+    nonce
+  )}">
+(function(){
+  function fallbackCopy(text){
+    var ta=document.createElement("textarea");
+    ta.value=text;
+    ta.setAttribute("readonly","");
+    ta.style.position="fixed";
+    ta.style.left="-9999px";
+    ta.style.top="0";
+    document.body.appendChild(ta);
+    ta.select();
+    var ok=false;
+    try{ok=document.execCommand("copy")}catch(e){}
+    document.body.removeChild(ta);
+    return ok;
+  }
+  function flash(btn){
+    btn.textContent="已复制";
+    btn.classList.add("copied");
+    window.setTimeout(function(){
+      btn.textContent="复制";
+      btn.classList.remove("copied");
+    },1500);
+  }
+  document.addEventListener("click",function(e){
+    var btn=e.target&&e.target.closest?e.target.closest(".copy-btn"):null;
+    if(!btn)return;
+    var text=btn.getAttribute("data-copy")||"";
+    if(!text)return;
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(text).then(function(){flash(btn)},function(){
+        fallbackCopy(text);flash(btn);
+      });
+    }else{
+      fallbackCopy(text);flash(btn);
+    }
+  });
+})();
+</script>`;
+
   return pageShell({
     title: "服务目录",
     nonce,
@@ -1095,7 +1164,7 @@ async function renderIndex(env, cfg, nonce) {
   <header class="top">
     <div>
       <h1>服务目录</h1>
-      <p class="sub">点击按钮直接打开服务</p>
+      <p class="sub">点击按钮直接打开服务，或复制地址</p>
     </div>
     ${summary}
   </header>
@@ -1105,7 +1174,8 @@ async function renderIndex(env, cfg, nonce) {
     </thead>
     <tbody>${rowsHtml}</tbody>
   </table>
-</div>`,
+</div>
+${script}`,
   });
 }
 
